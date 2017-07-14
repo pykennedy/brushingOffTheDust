@@ -1,13 +1,13 @@
 package pyk.myapplication.api.model;
 
 public class RssItem {
-  private String guid;
-  private String title;
-  private String description;
-  private String url;
-  private String imageUrl;
-  private long rssFeedId;
-  private long datePublished;
+  private String  guid;
+  private String  title;
+  private String  description;
+  private String  url;
+  private String  imageUrl;
+  private long    rssFeedId;
+  private long    datePublished;
   private boolean read;
   private boolean favorite;
   private boolean archived;
