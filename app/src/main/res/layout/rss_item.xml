@@ -4,16 +4,39 @@
                 android:layout_height="wrap_content"
                 android:padding="16dp">
 
-    <pyk.myapplication.ui.widget.RobotoTextView
-        style="@style/Headline"
-        android:id="@+id/tv_rss_item_title"
+    <FrameLayout
+        android:id="@+id/fl_rss_item_image_header"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="8dp">
+
+        <ProgressBar
+            android:id="@+id/pb_rss_item"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:indeterminate="true"
+            android:indeterminateOnly="true"/>
+
+        <ImageView
+            android:id="@+id/iv_rss_item_image"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:scaleType="centerCrop"/>
+
+    </FrameLayout>
+
+    <pyk.myapplication.ui.widget.RobotoTextView
+        android:id="@+id/tv_rss_item_title"
+        style="@style/Headline"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/fl_rss_item_image_header"
         android:text="New York Attacked By Giant Squid"/>
 
     <pyk.myapplication.ui.widget.RobotoTextView
-        style="@style/Caption"
         android:id="@+id/tv_rss_item_feed_title"
+        style="@style/Caption"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_rss_item_title"
@@ -21,12 +44,12 @@
         android:text="New York Times"/>
 
     <pyk.myapplication.ui.widget.RobotoTextView
-        style="@style/Body1"
         android:id="@+id/tv_rss_item_content"
+        style="@style/Body1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/tv_rss_item_feed_title"
-        android:text="A giant squid appeared abruptly today in lower Manhattan. The squid appeared peaceful at first but violence quickly escalated after a tourist attempted to have their photo taken with the \'big city octopus\'."
-        android:layout_marginTop="8dp"/>
+        android:layout_marginTop="8dp"
+        android:text="A giant squid appeared abruptly today in lower Manhattan. The squid appeared peaceful at first but violence quickly escalated after a tourist attempted to have their photo taken with the \'big city octopus\'."/>
 
 </RelativeLayout>
