@@ -3,6 +3,8 @@ package pyk.myapplication.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import pyk.myapplication.BloclyApplication;
+import pyk.myapplication.R;
 import pyk.myapplication.api.model.RssFeed;
 import pyk.myapplication.api.model.RssItem;
 
@@ -32,8 +34,8 @@ public class DataSource {
                           "http://feeds.feedburner.com/favorite_feed?format=xml"));
     for (int i = 0; i < 10; i++) {
       items.add(new RssItem(String.valueOf(i),
-                            "An incredible news story #" + i,
-                            "You won't believe how exciting this news story is, get ready to be blown away by its amazingness.",
+                            BloclyApplication.getSharedInstance().getString(R.string.placeholder_headline) + " " + i,
+                            BloclyApplication.getSharedInstance().getString(R.string.placeholder_content),
                             "http://favoritefeed.net?story_id=an-incredible-news-story",
                             "https://bloc-global-assets.s3.amazonaws.com/images-android/foundation/silly-dog.jpg",
                             0, System.currentTimeMillis(), false, false));
