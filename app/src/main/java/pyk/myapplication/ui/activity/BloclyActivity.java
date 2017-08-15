@@ -13,11 +13,13 @@ import android.view.MenuItem;
 
 import pyk.myapplication.R;
 import pyk.myapplication.ui.adapter.ItemAdapter;
+import pyk.myapplication.ui.adapter.NavigationDrawerAdapter;
 
 public class BloclyActivity extends AppCompatActivity {
-  private ItemAdapter           itemAdapter;
-  private ActionBarDrawerToggle drawerToggle;
-  private DrawerLayout          drawerLayout;
+  private ItemAdapter             itemAdapter;
+  private ActionBarDrawerToggle   drawerToggle;
+  private DrawerLayout            drawerLayout;
+  private NavigationDrawerAdapter navigationDrawerAdapter;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -38,6 +40,12 @@ public class BloclyActivity extends AppCompatActivity {
     drawerLayout = (DrawerLayout) findViewById(R.id.dl_activity_blocly);
     drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, 0, 0);
     drawerLayout.addDrawerListener(drawerToggle);
+  
+    navigationDrawerAdapter = new NavigationDrawerAdapter();
+    RecyclerView navigationRecyclerView = (RecyclerView) findViewById(R.id.rv_nav_activity_blocly);
+    navigationRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+    navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
+    navigationRecyclerView.setAdapter(navigationDrawerAdapter);
   }
   
   @Override
