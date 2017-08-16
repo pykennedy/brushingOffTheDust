@@ -10,12 +10,15 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import pyk.myapplication.R;
+import pyk.myapplication.api.model.RssFeed;
 import pyk.myapplication.ui.adapter.ItemAdapter;
 import pyk.myapplication.ui.adapter.NavigationDrawerAdapter;
 
-public class BloclyActivity extends AppCompatActivity {
+public class BloclyActivity extends AppCompatActivity
+    implements NavigationDrawerAdapter.NavigationDrawerAdapterDelegate {
   private ItemAdapter             itemAdapter;
   private ActionBarDrawerToggle   drawerToggle;
   private DrawerLayout            drawerLayout;
@@ -40,8 +43,9 @@ public class BloclyActivity extends AppCompatActivity {
     drawerLayout = (DrawerLayout) findViewById(R.id.dl_activity_blocly);
     drawerToggle = new ActionBarDrawerToggle(this, drawerLayout, 0, 0);
     drawerLayout.addDrawerListener(drawerToggle);
-  
+    
     navigationDrawerAdapter = new NavigationDrawerAdapter();
+    navigationDrawerAdapter.setDelegate(this);
     RecyclerView navigationRecyclerView = (RecyclerView) findViewById(R.id.rv_nav_activity_blocly);
     navigationRecyclerView.setLayoutManager(new LinearLayoutManager(this));
     navigationRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -49,22 +53,35 @@ public class BloclyActivity extends AppCompatActivity {
   }
   
   @Override
-  protected void onPostCreate (Bundle savedInstanceState){
+  protected void onPostCreate(Bundle savedInstanceState) {
     super.onPostCreate(savedInstanceState);
     drawerToggle.syncState();
   }
   
   @Override
-  public void onConfigurationChanged(Configuration newConfig){
+  public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     drawerToggle.onConfigurationChanged(newConfig);
   }
   
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
-    if(drawerToggle.onOptionsItemSelected(item)) {
+    if (drawerToggle.onOptionsItemSelected(item)) {
       return true;
     }
     return super.onOptionsItemSelected(item);
+  }
+  
+  @Override
+  public void didSelectNavigationOption(NavigationDrawerAdapter adapter,
+                                        NavigationDrawerAdapter.NavigationOption navigationOption) {
+    drawerLayout.closeDrawers();
+    Toast.makeText(this, "Show the " + navigationOption.name(), Toast.LENGTH_SHORT).show();
+  }
+  
+  @Override
+  public void didSelectFeed(NavigationDrawerAdapter adapter, RssFeed rssFeed) {
+    drawerLayout.closeDrawers();
+    Toast.makeText(this, "Show RSS items from " + rssFeed.getTitle(), Toast.LENGTH_SHORT).show();
   }
 }

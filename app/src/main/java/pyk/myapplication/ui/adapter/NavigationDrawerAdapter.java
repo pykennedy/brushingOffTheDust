@@ -5,7 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
-import android.widget.Toast;
+
+import java.lang.ref.WeakReference;
 
 import pyk.myapplication.BloclyApplication;
 import pyk.myapplication.R;
@@ -20,6 +21,14 @@ public class NavigationDrawerAdapter
     NAVIGATION_OPTION_ARCHIVED
   }
   
+  public static interface NavigationDrawerAdapterDelegate {
+    public void didSelectNavigationOption(NavigationDrawerAdapter adapter,
+                                          NavigationOption navigationOption);
+    public void didSelectFeed(NavigationDrawerAdapter adapter, RssFeed rssFeed);
+  }
+  
+  WeakReference<NavigationDrawerAdapterDelegate> delegate;
+  
   @Override
   public ViewHolder onCreateViewHolder(ViewGroup viewGroup, int position) {
     View inflate = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.navigation_item,
@@ -31,7 +40,7 @@ public class NavigationDrawerAdapter
   public void onBindViewHolder(ViewHolder viewHolder, int position) {
     RssFeed rssFeed = null;
     
-    if(position >= NavigationOption.values().length) {
+    if (position >= NavigationOption.values().length) {
       int feedPosition = position - NavigationOption.values().length;
       rssFeed = BloclyApplication.getSharedDataSource().getFeeds().get(feedPosition);
     }
@@ -44,12 +53,25 @@ public class NavigationDrawerAdapter
            + BloclyApplication.getSharedDataSource().getFeeds().size();
   }
   
+  public NavigationDrawerAdapterDelegate getDelegate() {
+    if (delegate == null) {
+      return null;
+    }
+    return delegate.get();
+  }
+  
+  public void setDelegate(NavigationDrawerAdapterDelegate delegate) {
+    this.delegate = new WeakReference<NavigationDrawerAdapterDelegate>(delegate);
+  }
+  
   class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-    
     View     topPadding;
     TextView title;
     View     bottomPadding;
     View     divider;
+    
+    int     position;
+    RssFeed rssFeed;
     
     public ViewHolder(View itemView) {
       super(itemView);
@@ -61,6 +83,8 @@ public class NavigationDrawerAdapter
     }
     
     void update(int position, RssFeed rssFeed) {
+      this.position = position;
+      this.rssFeed = rssFeed;
       boolean shouldShowTopPadding = position == NavigationOption.NAVIGATION_OPTION_INBOX.ordinal()
                                      || position == NavigationOption.values().length;
       topPadding.setVisibility(shouldShowTopPadding ? View.VISIBLE : View.GONE);
@@ -85,7 +109,15 @@ public class NavigationDrawerAdapter
     
     @Override
     public void onClick(View v) {
-      Toast.makeText(v.getContext(), "Nothing… yet!", Toast.LENGTH_SHORT).show();
+      if (getDelegate() == null) {
+        return;
+      }
+      if (position < NavigationOption.values().length) {
+        getDelegate().didSelectNavigationOption(NavigationDrawerAdapter.this,
+                                                NavigationOption.values()[position]);
+      } else {
+        getDelegate().didSelectFeed(NavigationDrawerAdapter.this, rssFeed);
+      }
     }
   }
 }
