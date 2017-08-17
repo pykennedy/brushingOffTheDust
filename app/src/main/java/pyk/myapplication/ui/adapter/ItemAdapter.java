@@ -26,6 +26,7 @@ import pyk.myapplication.api.model.RssItem;
 
 public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterViewHolder> {
   
+  
   public static interface DataSource {
     public RssItem getRssItem(ItemAdapter itemAdapter, int position);
     
@@ -38,10 +39,13 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
     public void onItemClicked(ItemAdapter itemAdapter, RssItem rssItem);
   }
   
-  private static String TAG = ItemAdapter.class.getSimpleName();
-  private RssItem expandedItem = null;
+  private static String  TAG          = ItemAdapter.class.getSimpleName();
+  private        RssItem expandedItem = null;
   private WeakReference<Delegate>   delegate;
   private WeakReference<DataSource> dataSource;
+  
+  private int collapsedItemHeight;
+  private int expandedItemHeight;
   
   @Override
   public ItemAdapterViewHolder onCreateViewHolder(ViewGroup viewGroup, int index) {
@@ -62,8 +66,8 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
   
   @Override
   public int getItemCount() {
-    if(getDataSource() == null) {
-      return 0 ;
+    if (getDataSource() == null) {
+      return 0;
     }
     return getDataSource().getItemCount(this);
   }
@@ -96,6 +100,22 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
   
   public void setExpandedItem(RssItem expandedItem) {
     this.expandedItem = expandedItem;
+  }
+  
+  public int getCollapsedItemHeight() {
+    return collapsedItemHeight;
+  }
+  
+  public void setCollapsedItemHeight(int collapsedItemHeight) {
+    this.collapsedItemHeight = collapsedItemHeight;
+  }
+  
+  public int getExpandedItemHeight() {
+    return expandedItemHeight;
+  }
+  
+  public void setExpandedItemHeight(int expandedItemHeight) {
+    this.expandedItemHeight = expandedItemHeight;
   }
   
   class ItemAdapterViewHolder extends RecyclerView.ViewHolder
@@ -192,6 +212,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
       int startingHeight = expandedContentWrapper.getMeasuredHeight();
       int finalHeight    = content.getMeasuredHeight();
       if (expand) {
+        setCollapsedItemHeight(itemView.getHeight());
         startingHeight = finalHeight;
         expandedContentWrapper.setAlpha(0f);
         expandedContentWrapper.setVisibility(View.VISIBLE);
@@ -218,6 +239,7 @@ public class ItemAdapter extends RecyclerView.Adapter<ItemAdapter.ItemAdapterVie
           if (animatedFraction == 1f) {
             if (expand) {
               content.setVisibility(View.GONE);
+              setExpandedItemHeight(itemView.getHeight());
             } else {
               expandedContentWrapper.setVisibility(View.GONE);
             }
