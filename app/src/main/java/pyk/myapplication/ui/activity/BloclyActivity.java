@@ -17,13 +17,17 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import pyk.myapplication.BloclyApplication;
 import pyk.myapplication.R;
 import pyk.myapplication.api.model.RssFeed;
+import pyk.myapplication.api.model.RssItem;
 import pyk.myapplication.ui.adapter.ItemAdapter;
 import pyk.myapplication.ui.adapter.NavigationDrawerAdapter;
 
 public class BloclyActivity extends AppCompatActivity
-    implements NavigationDrawerAdapter.NavigationDrawerAdapterDelegate {
+    implements NavigationDrawerAdapter.NavigationDrawerAdapterDelegate
+    , ItemAdapter.DataSource
+    , ItemAdapter.Delegate {
   private ItemAdapter             itemAdapter;
   private ActionBarDrawerToggle   drawerToggle;
   private DrawerLayout            drawerLayout;
@@ -40,6 +44,8 @@ public class BloclyActivity extends AppCompatActivity
     setSupportActionBar(toolbar);
     
     itemAdapter = new ItemAdapter();
+    itemAdapter.setDataSource(this);
+    itemAdapter.setDelegate(this);
     
     RecyclerView recyclerView = (RecyclerView) findViewById(R.id.rv_activity_blocly);
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
@@ -52,18 +58,18 @@ public class BloclyActivity extends AppCompatActivity
       @Override
       public void onDrawerClosed(View drawerView) {
         super.onDrawerClosed(drawerView);
-        if(overflowButton != null) {
+        if (overflowButton != null) {
           overflowButton.setAlpha(1f);
           overflowButton.setEnabled(true);
         }
-        if(menu==null) {
+        if (menu == null) {
           return;
         }
-        for(int i=0; i<menu.size(); i++) {
+        for (int i = 0; i < menu.size(); i++) {
           MenuItem item = menu.getItem(i);
           item.setEnabled(true);
           Drawable icon = item.getIcon();
-          if(icon != null) {
+          if (icon != null) {
             icon.setAlpha(255);
           }
         }
@@ -82,14 +88,15 @@ public class BloclyActivity extends AppCompatActivity
           menu.getItem(i).setEnabled(false);
         }
       }
-  
+      
       @Override
       public void onDrawerSlide(View drawerView, float slideOffset) {
         super.onDrawerSlide(drawerView, slideOffset);
         if (overflowButton == null) {
           ArrayList<View> foundViews = new ArrayList<View>();
           getWindow().getDecorView().findViewsWithText(foundViews,
-                                                       getString(R.string.abc_action_menu_overflow_description),
+                                                       getString(
+                                                           R.string.abc_action_menu_overflow_description),
                                                        View.FIND_VIEWS_WITH_CONTENT_DESCRIPTION);
           if (foundViews.size() > 0) {
             overflowButton = foundViews.get(0);
@@ -159,5 +166,43 @@ public class BloclyActivity extends AppCompatActivity
   public void didSelectFeed(NavigationDrawerAdapter adapter, RssFeed rssFeed) {
     drawerLayout.closeDrawers();
     Toast.makeText(this, "Show RSS items from " + rssFeed.getTitle(), Toast.LENGTH_SHORT).show();
+  }
+  
+  @Override
+  public RssItem getRssItem(ItemAdapter itemAdapter, int position) {
+    return BloclyApplication.getSharedDataSource().getItems().get(position);
+  }
+  
+  @Override
+  public RssFeed getRssFeed(ItemAdapter itemAdapter, int position) {
+    return BloclyApplication.getSharedDataSource().getFeeds().get(0);
+  }
+  
+  @Override
+  public int getItemCount(ItemAdapter itemAdapter) {
+    return BloclyApplication.getSharedDataSource().getItems().size();
+  }
+  
+  @Override
+  public void onItemClicked(ItemAdapter itemAdapter, RssItem rssItem) {
+    int positionToExpand   = -1;
+    int positionToContract = -1;
+    
+    if (itemAdapter.getExpandedItem() != null) {
+      positionToContract = BloclyApplication.getSharedDataSource().getItems().indexOf(
+          itemAdapter.getExpandedItem());
+    }
+    if (itemAdapter.getExpandedItem() != rssItem) {
+      positionToExpand = BloclyApplication.getSharedDataSource().getItems().indexOf(rssItem);
+      itemAdapter.setExpandedItem(rssItem);
+    } else {
+      itemAdapter.setExpandedItem(null);
+    }
+    if (positionToContract > -1) {
+      itemAdapter.notifyItemChanged(positionToContract);
+    }
+    if (positionToExpand > -1) {
+      itemAdapter.notifyItemChanged(positionToExpand);
+    }
   }
 }
