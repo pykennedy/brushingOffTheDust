@@ -1,7 +1,10 @@
 package pyk.myapplication.ui.activity;
 
+import android.animation.ValueAnimator;
+import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -13,6 +16,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.AccelerateDecelerateInterpolator;
 import android.widget.Toast;
 
 import java.util.ArrayList;
@@ -68,6 +72,9 @@ public class BloclyActivity extends AppCompatActivity
         }
         for (int i = 0; i < menu.size(); i++) {
           MenuItem item = menu.getItem(i);
+          if (item.getItemId() == R.id.action_share && itemAdapter.getExpandedItem() == null) {
+            continue;
+          }
           item.setEnabled(true);
           Drawable icon = item.getIcon();
           if (icon != null) {
@@ -111,6 +118,9 @@ public class BloclyActivity extends AppCompatActivity
         }
         for (int i = 0; i < menu.size(); i++) {
           MenuItem item = menu.getItem(i);
+          if (item.getItemId() == R.id.action_share && itemAdapter.getExpandedItem() == null) {
+            continue;
+          }
           Drawable icon = item.getIcon();
           if (icon != null) {
             icon.setAlpha((int) ((1f - slideOffset) * 255));
@@ -145,7 +155,21 @@ public class BloclyActivity extends AppCompatActivity
     if (drawerToggle.onOptionsItemSelected(item)) {
       return true;
     }
-    Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+    if (item.getItemId() == R.id.action_share) {
+      RssItem itemToShare = itemAdapter.getExpandedItem();
+      if (itemToShare == null) {
+        return false;
+      }
+      
+      Intent shareIntent = new Intent(Intent.ACTION_SEND);
+      shareIntent.putExtra(Intent.EXTRA_TEXT,
+                           String.format("%s (%s)", itemToShare.getTitle(), itemToShare.getUrl()));
+      shareIntent.setType("text/plain");
+      Intent chooser = Intent.createChooser(shareIntent, getString(R.string.share_chooser_title));
+      startActivity(chooser);
+    } else {
+      Toast.makeText(this, item.getTitle(), Toast.LENGTH_SHORT).show();
+    }
     return super.onOptionsItemSelected(item);
   }
   
@@ -153,6 +177,7 @@ public class BloclyActivity extends AppCompatActivity
   public boolean onCreateOptionsMenu(Menu menu) {
     getMenuInflater().inflate(R.menu.blocly, menu);
     this.menu = menu;
+    animateShareItem(itemAdapter.getExpandedItem() != null);
     return super.onCreateOptionsMenu(menu);
   }
   
@@ -208,7 +233,9 @@ public class BloclyActivity extends AppCompatActivity
     }
     if (positionToExpand > -1) {
       itemAdapter.notifyItemChanged(positionToExpand);
+      animateShareItem(true);
     } else {
+      animateShareItem(false);
       return;
     }
     int lessToScroll = 0;
@@ -217,5 +244,30 @@ public class BloclyActivity extends AppCompatActivity
     }
     View viewToExpand = recyclerView.getLayoutManager().findViewByPosition(positionToExpand);
     recyclerView.smoothScrollBy(0, viewToExpand.getTop() - lessToScroll);
+  }
+  
+  @Override
+  public void onVisitClicked(ItemAdapter itemAdapter, RssItem rssItem) {
+    Intent visitIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(rssItem.getUrl()));
+    startActivity(visitIntent);
+  }
+  
+  private void animateShareItem(final boolean enabled) {
+    MenuItem shareItem = menu.findItem(R.id.action_share);
+    if (shareItem.isEnabled() == enabled) {
+      return;
+    }
+    shareItem.setEnabled(enabled);
+    final Drawable shareIcon     = shareItem.getIcon();
+    ValueAnimator  valueAnimator = ValueAnimator.ofInt(
+        enabled ? new int[]{0, 255} : new int[]{255, 0});
+    valueAnimator.setDuration(getResources().getInteger(android.R.integer.config_shortAnimTime));
+    valueAnimator.setInterpolator(new AccelerateDecelerateInterpolator());
+    valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+      @Override public void onAnimationUpdate(ValueAnimator animation) {
+        shareIcon.setAlpha((Integer) animation.getAnimatedValue());
+      }
+    });
+    valueAnimator.start();
   }
 }
