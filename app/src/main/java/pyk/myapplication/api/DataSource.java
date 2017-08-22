@@ -7,6 +7,7 @@ import pyk.myapplication.BloclyApplication;
 import pyk.myapplication.R;
 import pyk.myapplication.api.model.RssFeed;
 import pyk.myapplication.api.model.RssItem;
+import pyk.myapplication.api.network.GetFeedsNetworkRequest;
 
 public class DataSource {
   
@@ -17,6 +18,14 @@ public class DataSource {
     feeds = new ArrayList<RssFeed>();
     items = new ArrayList<RssItem>();
     createFakeData();
+    
+    new Thread(new Runnable() {
+      @Override
+      public void run() {
+        new GetFeedsNetworkRequest("http://feeds.feedburner.com/androidcentral?format=xml")
+            .performRequest();
+      }
+    }).start();
   }
   
   public List<RssFeed> getFeeds() {
@@ -34,8 +43,10 @@ public class DataSource {
                           "http://feeds.feedburner.com/favorite_feed?format=xml"));
     for (int i = 0; i < 10; i++) {
       items.add(new RssItem(String.valueOf(i),
-                            BloclyApplication.getSharedInstance().getString(R.string.placeholder_headline) + " " + i,
-                            BloclyApplication.getSharedInstance().getString(R.string.placeholder_content),
+                            BloclyApplication.getSharedInstance()
+                                             .getString(R.string.placeholder_headline) + " " + i,
+                            BloclyApplication.getSharedInstance()
+                                             .getString(R.string.placeholder_content),
                             "http://favoritefeed.net?story_id=an-incredible-news-story",
                             "https://bloc-global-assets.s3.amazonaws.com/images-android/foundation/silly-dog.jpg",
                             0, System.currentTimeMillis(), false, false));
