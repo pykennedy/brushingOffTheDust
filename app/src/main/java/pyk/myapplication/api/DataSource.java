@@ -1,20 +1,35 @@
 package pyk.myapplication.api;
 
+import android.database.sqlite.SQLiteDatabase;
+
 import java.util.ArrayList;
 import java.util.List;
 
 import pyk.myapplication.BloclyApplication;
+import pyk.myapplication.BuildConfig;
 import pyk.myapplication.R;
 import pyk.myapplication.api.model.RssFeed;
 import pyk.myapplication.api.model.RssItem;
+import pyk.myapplication.api.model.database.DatabaseOpenHelper;
+import pyk.myapplication.api.model.database.table.RssFeedTable;
+import pyk.myapplication.api.model.database.table.RssItemTable;
 import pyk.myapplication.api.network.GetFeedsNetworkRequest;
 
 public class DataSource {
   
-  private List<RssFeed> feeds;
-  private List<RssItem> items;
+  private DatabaseOpenHelper databaseOpenHelper;
+  private RssFeedTable       rssFeedTable;
+  private RssItemTable       rssItemTable;
+  private List<RssFeed>      feeds;
+  private List<RssItem>      items;
   
   public DataSource() {
+    rssFeedTable = new RssFeedTable();
+    rssItemTable = new RssItemTable();
+    
+    databaseOpenHelper = new DatabaseOpenHelper(BloclyApplication.getSharedInstance(), rssFeedTable,
+                                                rssItemTable);
+    
     feeds = new ArrayList<RssFeed>();
     items = new ArrayList<RssItem>();
     createFakeData();
@@ -22,6 +37,10 @@ public class DataSource {
     new Thread(new Runnable() {
       @Override
       public void run() {
+        if (BuildConfig.DEBUG && false) {
+          BloclyApplication.getSharedInstance().deleteDatabase("blocly_db");
+        }
+        SQLiteDatabase writableDatabase = databaseOpenHelper.getWritableDatabase();
         new GetFeedsNetworkRequest("http://feeds.feedburner.com/androidcentral?format=xml")
             .performRequest();
       }

@@ -13,10 +13,10 @@ public class RssFeedTable extends Table {
   
   @Override
   public String getCreateStatement() {
-    return "CREATE TABLE" + getName() + " ("
+    return "CREATE TABLE " + getName() + " ("
            + COLUMN_ID + " INTEGER PRIMARY KEY,"
            + COLUMN_LINK + " TEXT,"
-           + COLUMN_TITLE + "TEXT,"
+           + COLUMN_TITLE + " TEXT,"
            + COLUMN_DESCRIPTION + " TEXT,"
            + COLUMN_FEED_URL + " TEXT)";
   }
