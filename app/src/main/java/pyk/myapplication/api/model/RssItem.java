@@ -1,6 +1,6 @@
 package pyk.myapplication.api.model;
 
-public class RssItem {
+public class RssItem extends Model {
   private String  guid;
   private String  title;
   private String  description;
@@ -12,8 +12,10 @@ public class RssItem {
   private boolean favorite;
   private boolean archived;
   
-  public RssItem(String guid, String title, String description, String url, String imageUrl,
-                 long rssFeedId, long datePublished, boolean read, boolean favorite) {
+  public RssItem(long rowId, String guid, String title, String description, String url,
+                 String imageUrl, long rssFeedId, long datePublished, boolean read,
+                 boolean favorite) {
+    super(rowId);
     this.guid = guid;
     this.title = title;
     this.description = description;
